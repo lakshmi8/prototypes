@@ -1,2 +1,5 @@
 # BloomFilter
-My implementation of Bloom Filter data structure
+Implementation of Bloom Filter data structure.
+
+**References:**
+Arpit Bhayani's YouTube live coding video (https://www.youtube.com/live/UVFnabieyzc)
