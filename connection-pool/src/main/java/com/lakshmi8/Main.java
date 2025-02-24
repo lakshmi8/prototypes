@@ -27,8 +27,12 @@ public class Main {
         }
     }
 
+    private static Connection getConnectionFromPool() {
+        
+    }
+
     public static void main(String[] args) {
-        int numThreads = 150; // Found out that only 150 connections are supported at max
+        int numThreads = 152;
         for (int i = 0; i < numThreads; i++) {
             new Thread(new Runnable() {
                 @Override
@@ -40,7 +44,7 @@ public class Main {
                             System.err.println(Thread.currentThread().getName() + " could not establish a connection.");
                             return;
                         }
-                        Thread.sleep(60000);
+                        Thread.sleep(10000);
                         System.out.println(Thread.currentThread().getName() + " has finished its task");
 
                     } catch (InterruptedException interruptedException) {
