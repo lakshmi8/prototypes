@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
 from langchain_deepseek import ChatDeepSeek
 from langchain_openai import ChatOpenAI
-from langchain_core.pydantic_v1 import SecretStr
+from pydantic import SecretStr
 
 from parsers.output_parsers import summary_parser, Summary
 from third_parties.linkedin import scrape_linkedin_profile
@@ -16,7 +16,7 @@ def get_linkedin_summary(name: str) -> Summary:
     linkedin_profile_url = lookup_profile_url(name=name)
 
     # Scraping the linked profile
-    linkedin_profile_information = scrape_linkedin_profile(linkedin_profile_url)
+    linkedin_profile_information = scrape_linkedin_profile(linkedin_profile_url, True)
 
     summary_template = """
         given the Linkedin profile information {information} about a person I want you to create:
@@ -40,7 +40,7 @@ def get_linkedin_summary(name: str) -> Summary:
     secret_api_key = SecretStr(api_key)
 
     #llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini", openai_api_key=secret_api_key)
-    llm = ChatDeepSeek(temperature=0, model_name="deepseek-reasoner", api_key=secret_api_key)
+    llm = ChatDeepSeek(temperature=0, model="deepseek-reasoner", api_key=api_key)
 
     chain = summary_prompt_template | llm | summary_parser
     res: Summary = chain.invoke(input={"information": linkedin_profile_information})

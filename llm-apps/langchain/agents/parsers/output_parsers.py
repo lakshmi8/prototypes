@@ -1,5 +1,5 @@
 from langchain.output_parsers import PydanticOutputParser
-from langchain_core.pydantic_v1 import Field, BaseModel
+from pydantic import Field, BaseModel
 from typing import List, Dict, Any
 
 

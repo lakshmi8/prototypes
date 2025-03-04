@@ -18,7 +18,7 @@ def get_linkedin_profile_url(name: str):
             if "linkedin.com" in href:
                 return href
 
-    return "https://in.linkedin.com/in/lakshmi-narayanan-n-v-6b0a176b" # If I don't get any responses from DuckDuckGo, I should return my linked in url (hard-coded)
+    return "https://in.linkedin.com/in/lakshmi-narayanan-n-v-6b0a176b" # If I don't get any responses from DuckDuckGo, I should return my linkedin url (hard-coded)
 
 if __name__ == '__main__':
     get_linkedin_profile_url("Lakshmi Narayanan N V")

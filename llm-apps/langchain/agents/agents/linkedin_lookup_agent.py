@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_deepseek import ChatDeepSeek
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain import hub
-from langchain_core.pydantic_v1 import SecretStr
+from pydantic import SecretStr
 
 from tools.tools import get_linkedin_profile_url
 import os
@@ -21,7 +21,7 @@ def lookup_profile_url(name: str):
     secret_api_key = SecretStr(api_key)
 
     #llm = ChatOpenAI(temperature=0, model_name="gpt-4o-mini", openai_api_key=secret_api_key)
-    llm = ChatDeepSeek(temperature=0, model_name="deepseek-reasoner", api_key=secret_api_key)
+    llm = ChatDeepSeek(temperature=0, model="deepseek-reasoner", api_key=api_key)
     tools_for_agent = [
         Tool(
             name="WebCrawler for LinkedIn profile URL",
