@@ -63,7 +63,7 @@ def chat_page():
             llm_response = ask_llm(user_prompt, chat_history=st.session_state.chat_history)
             sources = set([doc.metadata["source"] for doc in llm_response["source_documents"]])
 
-            formatted_response = f"Answer: {llm_response["result"]}\n\n  {create_sources_string(sources)}"
+            formatted_response = f"Answer: {llm_response['result']}\n\n  {create_sources_string(sources)}"
             st.session_state.user_prompt_history.append(user_prompt)
             st.session_state.llm_answers_history.append(formatted_response)
             st.session_state.chat_history.append(("human", user_prompt))
