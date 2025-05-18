@@ -22,16 +22,40 @@ public class Main {
             return connection;
         } catch (SQLException sqlException) {
             System.err.println("Connection could not be established");
-            sqlException.printStackTrace();
             return null;
         }
     }
 
-    private static Connection getConnectionFromPool() {
-        
-    }
-
     public static void main(String[] args) {
+
+        int queueCapacity = 10;
+        BoundedBlockingQueue<Connection> queue = new BoundedBlockingQueue<>(queueCapacity);
+
+        for (int i = 0; i < queueCapacity; i++) {
+            Connection connection = createNewConnection();
+            if (connection == null) {
+                System.err.println("Could not establish a connection.");
+            }
+            queue.enqueue(connection);
+        }
+        int numThreads = 200;
+        for (int i = 0; i < numThreads; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Connection connection = queue.dequeue();
+                    try {
+                        Thread.sleep(100);
+                    } catch(InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    queue.enqueue(connection);
+                }
+            }, "Thread-" + (i + 1)).start();
+        }
+
+        /*
+        // The following solution won't scale beyond 151 threads as MySQL doesnt support creating more than 151 DB connections (atleast in my system).
         int numThreads = 152;
         for (int i = 0; i < numThreads; i++) {
             new Thread(new Runnable() {
@@ -62,6 +86,6 @@ public class Main {
                     }
                 }
             }, "Thread-" + (i + 1)).start();
-        }
+        }*/
     }
 }
