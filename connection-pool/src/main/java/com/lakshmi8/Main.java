@@ -1,61 +1,45 @@
 package com.lakshmi8;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class Main {
 
-    private static Connection createNewConnection() {
-        String jdbcUrl =  "jdbc:mysql://localhost:3306/prototype_db";
-        String username = System.getenv("DB_USER");
-        String password = System.getenv("DB_PASSWORD");
-
-        if (username == null || password == null) {
-            System.err.println("Database credentials are not set in the environment");
-            return null;
-        }
-
-        try {
-            Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
-            System.out.println("Returning a connection object");
-            return connection;
-        } catch (SQLException sqlException) {
-            System.err.println("Connection could not be established");
-            return null;
-        }
-    }
-
     public static void main(String[] args) {
 
-        int queueCapacity = 10;
-        BoundedBlockingQueue<Connection> queue = new BoundedBlockingQueue<>(queueCapacity);
+        int poolCapacity = 10;
+        ConnectionPool connectionPool = new ConnectionPool(poolCapacity);
 
-        for (int i = 0; i < queueCapacity; i++) {
-            Connection connection = createNewConnection();
-            if (connection == null) {
-                System.err.println("Could not establish a connection.");
-            }
-            queue.enqueue(connection);
-        }
         int numThreads = 200;
         for (int i = 0; i < numThreads; i++) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Connection connection = queue.dequeue();
+                    // Acquire a connection from the pool
+                    Connection connection = connectionPool.getConnection();
                     try {
+                        // Simulate work using the connection
                         Thread.sleep(100);
                     } catch(InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
-                    queue.enqueue(connection);
+                    // Return the connection to the pool
+                    connectionPool.returnConnection(connection);
                 }
             }, "Thread-" + (i + 1)).start();
         }
 
+        // Delay to allow threads to complete before shutting down the pool
+        try {
+            Thread.sleep(5000); // adjust if needed
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Shut down the connection pool and release all resources
+        connectionPool.shutdown();
+
         /*
-        // The following solution won't scale beyond 151 threads as MySQL doesnt support creating more than 151 DB connections (atleast in my system).
+        // The following solution won't scale beyond 151 threads as MySQL doesn't support creating more than 151 DB connections (in my system).
         int numThreads = 152;
         for (int i = 0; i < numThreads; i++) {
             new Thread(new Runnable() {

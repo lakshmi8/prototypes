@@ -6,10 +6,17 @@ public class BoundedBlockingQueue<T> {
     private final LinkedList<T> queue;
     private final int capacity;
 
+    // Constructor initializes the queue with a given capacity
+    public BoundedBlockingQueue(int capacity) {
+        queue = new LinkedList<>();
+        this.capacity = capacity;
+    }
+
+    // Adds an element to the queue, blocks if the queue is full
     public synchronized void enqueue(T element) {
         while (size() == capacity) {
             try {
-                wait();
+                wait(); // wait for space to become available
             } catch(InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
@@ -17,13 +24,14 @@ public class BoundedBlockingQueue<T> {
         }
         queue.addLast(element);
         System.out.println("Enqueued " + element);
-        notifyAll();
+        notifyAll(); // notify waiting threads
     }
 
+    // Removes and returns the head element, blocks if the queue is empty
     public synchronized T dequeue() {
         while (queue.isEmpty()) {
             try {
-                wait();
+                wait(); // wait for an item to be available
             } catch(InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return null;
@@ -31,22 +39,20 @@ public class BoundedBlockingQueue<T> {
         }
         T element = queue.removeFirst();
         System.out.println("Dequeued " + element);
-        notifyAll();
+        notifyAll(); // notify waiting threads
         return element;
     }
 
+    // Returns the current size of the queue
     public int size() {
         return queue.size();
     }
 
-    public BoundedBlockingQueue(int capacity) {
-        queue = new LinkedList<>();
-        this.capacity = capacity;
-    }
-
+    // Main method for testing with String type
     public static void main(String[] args) {
         BoundedBlockingQueue<String> stringBoundedBlockingQueue = new BoundedBlockingQueue<>(10);
 
+        // Spawn 20 producer threads
         for (int i = 0; i < 20; i++) {
             new Thread(new Runnable() {
                 @Override
@@ -61,6 +67,7 @@ public class BoundedBlockingQueue<T> {
             }, "ProducingThread-" + (i + 1)).start();
         }
 
+        // Spawn 20 consumer threads
         for (int i = 0; i < 20; i++) {
             new Thread(new Runnable() {
                 @Override
@@ -74,6 +81,5 @@ public class BoundedBlockingQueue<T> {
                 }
             }, "ConsumingThread-" + (i + 1)).start();
         }
-
     }
 }
